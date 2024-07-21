@@ -11,13 +11,13 @@ class DenseLayerWrapper:
         # Initialize the NextGenJAX DenseLayer with the provided features and activation function.
         self.dense_layer = DenseLayer(features=features, activation=activation)
 
-    def __call__(self, x):
+    def __call__(self, x, target_framework='pytorch'):
         # Convert input from PyTorch/TensorFlow tensor to JAX tensor.
         x_jax = convert_to_jax(x)
         # Apply the NextGenJAX DenseLayer.
         y_jax = self.dense_layer(x_jax)
         # Convert output from JAX tensor back to PyTorch/TensorFlow tensor.
-        y = convert_from_jax(y_jax)
+        y = convert_from_jax(y_jax, target_framework)
         return y
 
 class ConvolutionalLayerWrapper:
@@ -25,13 +25,13 @@ class ConvolutionalLayerWrapper:
         # Initialize the NextGenJAX ConvolutionalLayer with the provided parameters.
         self.conv_layer = ConvolutionalLayer(features=features, kernel_size=kernel_size, strides=strides, padding=padding, activation=activation)
 
-    def __call__(self, x):
+    def __call__(self, x, target_framework='pytorch'):
         # Convert input from PyTorch/TensorFlow tensor to JAX tensor.
         x_jax = convert_to_jax(x)
         # Apply the NextGenJAX ConvolutionalLayer.
         y_jax = self.conv_layer(x_jax)
         # Convert output from JAX tensor back to PyTorch/TensorFlow tensor.
-        y = convert_from_jax(y_jax)
+        y = convert_from_jax(y_jax, target_framework)
         return y
 
 class TransformerLayerWrapper:
@@ -39,13 +39,13 @@ class TransformerLayerWrapper:
         # Initialize the NextGenJAX TransformerLayer with the provided parameters.
         self.transformer_layer = TransformerLayer(d_model=d_model, num_heads=num_heads, d_ff=d_ff, dropout_rate=dropout_rate, activation=activation)
 
-    def __call__(self, x):
+    def __call__(self, x, target_framework='pytorch'):
         # Convert input from PyTorch/TensorFlow tensor to JAX tensor.
         x_jax = convert_to_jax(x)
         # Apply the NextGenJAX TransformerLayer.
         y_jax = self.transformer_layer(x_jax)
         # Convert output from JAX tensor back to PyTorch/TensorFlow tensor.
-        y = convert_from_jax(y_jax)
+        y = convert_from_jax(y_jax, target_framework)
         return y
 
 def convert_to_jax(tensor):
@@ -59,8 +59,31 @@ def convert_to_jax(tensor):
     else:
         raise TypeError("Input tensor must be a PyTorch or TensorFlow tensor.")
 
-def convert_from_jax(jax_tensor):
-    # This function converts JAX tensors to PyTorch tensors.
-    # Note: The choice of PyTorch here is arbitrary; in a complete implementation,
-    # we would include logic to convert to the appropriate framework's tensor type.
-    return torch.from_numpy(np.array(jax_tensor))
+def convert_from_jax(jax_tensor, target_framework='pytorch'):
+    # This function converts JAX tensors to PyTorch or TensorFlow tensors.
+    if target_framework == 'pytorch':
+        return torch.tensor(np.array(jax_tensor))
+    elif target_framework == 'tensorflow':
+        return tf.convert_to_tensor(np.array(jax_tensor))
+    else:
+        raise ValueError(f"Unsupported target framework: {target_framework}")
+
+def convert_to_tensorflow(tensor):
+    # This function converts PyTorch or JAX tensors to TensorFlow tensors.
+    if isinstance(tensor, torch.Tensor):
+        # Convert PyTorch tensor to numpy array, then to TensorFlow tensor.
+        return tf.convert_to_tensor(tensor.numpy())
+    elif isinstance(tensor, jnp.ndarray):
+        # Convert JAX tensor directly to TensorFlow tensor.
+        return tf.convert_to_tensor(np.array(tensor))
+    else:
+        raise TypeError("Input tensor must be a PyTorch or JAX tensor.")
+
+def convert_from_tensorflow(tensor, target_framework='pytorch'):
+    # This function converts TensorFlow tensors to PyTorch or JAX tensors.
+    if target_framework == 'pytorch':
+        return torch.tensor(tensor.numpy())
+    elif target_framework == 'jax':
+        return device_put(tensor.numpy())
+    else:
+        raise ValueError(f"Unsupported target framework: {target_framework}")
