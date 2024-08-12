@@ -217,7 +217,7 @@ class NextGenTorchModel(nn.Module):
         return torch.nn.functional.cross_entropy(outputs.view(-1, outputs.size(-1)), labels.view(-1))
 
     # Custom methods for text generation
-    def generate(self, prompt: str, max_length: int = 100, stop: List[str] = None, temperature: float = 0.7, top_p: float = 0.9, top_k: int = 50, num_beams: int = 4, max_retries: int = 3) -> torch.Tensor:
+    def generate(self, prompt: str, max_length: int = 100, stop: List[str] = None, temperature: float = 0.7, top_p: float = 0.9, top_k: int = 50, num_beams: int = 4, max_retries: int = 3, max_iterations: int = 1000) -> str:
         try:
             # Enhanced input validation
             if not isinstance(prompt, str) or not prompt.strip():
@@ -232,6 +232,8 @@ class NextGenTorchModel(nn.Module):
                 raise ValueError("top_k must be a positive integer")
             if not isinstance(num_beams, int) or num_beams <= 0:
                 raise ValueError("num_beams must be a positive integer")
+            if not isinstance(max_iterations, int) or max_iterations <= 0:
+                raise ValueError("max_iterations must be a positive integer")
 
             input_ids = self.tokenize(prompt)
             if input_ids.numel() == 0:
@@ -248,7 +250,7 @@ class NextGenTorchModel(nn.Module):
             beam_inputs = input_ids.repeat(num_beams, 1)
             done_beams = []
 
-            for i in range(max_length - context_length):
+            for i in range(min(max_length - context_length, max_iterations)):
                 with torch.no_grad():
                     try:
                         outputs = self(beam_inputs)
@@ -260,9 +262,10 @@ class NextGenTorchModel(nn.Module):
                         next_token_logits = outputs[:, -1, :].clone()
 
                         # Apply temperature
-                        next_token_logits = next_token_logits / temperature
+                        next_token_logits = next_token_logits / max(temperature, 1e-8)
 
                         # Apply top-k filtering
+                        top_k = min(top_k, next_token_logits.size(-1))
                         top_k_logits, top_k_indices = torch.topk(next_token_logits, top_k, dim=-1)
                         next_token_logits[next_token_logits < top_k_logits[:, [-1]]] = float('-inf')
 
@@ -290,15 +293,29 @@ class NextGenTorchModel(nn.Module):
                         beam_inputs = torch.cat([beam_inputs[beam_indices // 2], beam_tokens.unsqueeze(1)], dim=-1)
 
                         # Check for completed beams
+                        new_done_beams = []
                         for j, beam in enumerate(beam_inputs):
-                            if self._check_stop_condition(self.decode(beam), stop) or beam.size(0) >= max_length:
-                                done_beams.append((beam_scores[j], beam))
+                            decoded_beam = self.decode(beam)
+                            if self._check_stop_condition(decoded_beam, stop) or beam.size(0) >= max_length:
+                                new_done_beams.append((beam_scores[j], beam))
                                 beam_scores[j] = float('-inf')
 
-                        if len(done_beams) == num_beams:
-                            break
+                        # Add new completed beams and remove them from active beams
+                        done_beams.extend(new_done_beams)
+                        if new_done_beams:
+                            active_beam_indices = beam_scores != float('-inf')
+                            beam_inputs = beam_inputs[active_beam_indices]
+                            beam_scores = beam_scores[active_beam_indices]
+                            if len(beam_inputs) == 0:
+                                break
 
                         print(f"Step {i+1}: Generated tokens, Shape: {beam_inputs.shape}")
+                        print(f"Sample decoded text: {self.decode(beam_inputs[0])}")
+
+                        # Early stopping if no progress is made
+                        if i > 0 and all(beam.size(0) == beam_inputs[0].size(0) for beam in beam_inputs):
+                            print("No progress made in beam search. Stopping early.")
+                            break
 
                     except (RuntimeError, IndexError, ValueError) as e:
                         print(f"Step {i+1}: Error occurred: {str(e)}")
@@ -311,14 +328,30 @@ class NextGenTorchModel(nn.Module):
                             print(f"Attempting to continue generation...")
                             continue
 
+                if i == max_iterations - 1:
+                    print(f"Reached maximum iterations ({max_iterations}). Stopping generation.")
+
             # Select the best beam
             if done_beams:
                 best_beam = max(done_beams, key=lambda x: x[0])[1]
-            else:
+            elif beam_inputs.size(0) > 0:
                 best_beam = beam_inputs[beam_scores.argmax()]
+            else:
+                raise ValueError("No valid beams generated")
 
             print(f"Generation completed. Final generated tokens length: {best_beam.size(0)}")
-            return best_beam
+
+            # Decode the best beam to get the generated text
+            generated_text = self.decode(best_beam)
+
+            # Ensure the generated text starts with the prompt
+            if not generated_text.startswith(prompt):
+                generated_text = prompt + " " + generated_text
+
+            # Remove any remaining [UNK] tokens
+            generated_text = generated_text.replace("[UNK]", "")
+
+            return generated_text.strip()
 
         except Exception as e:
             error_message = f"Error during generation: {str(e)}"

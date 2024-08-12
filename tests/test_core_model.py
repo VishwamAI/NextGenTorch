@@ -103,3 +103,14 @@ def test_generate(model):
     result_with_multiple_stops = model.generate(prompt, stop=stop_sequences)
     assert any(seq in result_with_multiple_stops for seq in stop_sequences) or all(seq not in result_with_multiple_stops for seq in stop_sequences)
     assert result_with_multiple_stops.startswith(prompt)
+
+    # Test with maximum iteration limit
+    import time
+    start_time = time.time()
+    max_iterations = 100
+    result_with_max_iterations = model.generate(prompt, max_iterations=max_iterations)
+    end_time = time.time()
+    assert isinstance(result_with_max_iterations, str)
+    assert len(result_with_max_iterations) > 0
+    assert result_with_max_iterations.startswith(prompt)
+    assert end_time - start_time < 10, "Generation took too long, possibly stuck in a loop"
