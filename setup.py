@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="NextGenTorch",
-    version="0.1.0",
+    version="0.0.1",
     author="VishwamAI",
     description="NextGenTorch is a powerful and flexible PyTorch-based library for next-generation language models.",
     long_description=open("README.md").read(),
