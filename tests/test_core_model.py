@@ -16,9 +16,9 @@ def model():
 
 def test_forward_pass(model):
     input_ids = torch.randint(0, 64, (2, 10))  # Changed upper bound to 64
-    attention_mask = torch.ones_like(input_ids)
+    attention_mask = torch.ones_like(input_ids)  # Create 2D attention mask
     outputs = model(input_ids, attention_mask)
-    assert outputs.shape == (2, 10, model.config["hidden_size"])
+    assert outputs.shape == (2, 10, model.vocab_size)
     assert outputs.dtype == torch.float32  # Ensure output is of float type
 
 def test_train_step(model):
@@ -71,7 +71,7 @@ def test_extended_context_length(model):
     long_input = torch.randint(0, 64, (1, 512))  # Reduced input size to 512 tokens
     long_attention_mask = torch.ones_like(long_input)
     outputs = model(long_input, long_attention_mask)
-    assert outputs.shape == (1, 512, model.config["hidden_size"])
+    assert outputs.shape == (1, 512, model.vocab_size)
 
 def test_generate(model):
     prompt = "Test prompt"
