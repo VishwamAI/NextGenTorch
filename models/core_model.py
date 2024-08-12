@@ -19,7 +19,7 @@ class NextGenTorchModel(nn.Module):
         self.padding_idx = len(self.vocab)
         self.embedding = nn.Embedding(len(self.vocab) + 1, self.config['hidden_size'], padding_idx=self.padding_idx)
         self.transformer = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(d_model=self.config['hidden_size'], nhead=self.config['num_attention_heads']),
+            nn.TransformerEncoderLayer(d_model=self.config['hidden_size'], nhead=self.config['num_attention_heads'], batch_first=True),
             num_layers=self.config['num_layers']
         )
         self.output_layer = nn.Linear(self.config['hidden_size'], self.config['hidden_size'])
