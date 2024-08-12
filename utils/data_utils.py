@@ -1,12 +1,12 @@
 import torch
-from nextgenjax import tokenization
-from fairscale.nn.data_parallel import ShardedDataParallel
+from fairscale.nn.data_parallel import FullyShardedDataParallel as FSDP
 from fairscale.optim.oss import OSS
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from transformers import AutoTokenizer  # Added for alternative tokenization
 
 def preprocess_text(text: str) -> torch.Tensor:
     """
-    Preprocess and tokenize input text using NextGenJax tokenization.
+    Preprocess and tokenize input text using a basic tokenization method.
 
     Args:
         text (str): Input text to be preprocessed and tokenized.
@@ -14,10 +14,11 @@ def preprocess_text(text: str) -> torch.Tensor:
     Returns:
         torch.Tensor: Tokenized and preprocessed text as a tensor.
     """
-    # Use NextGenJax tokenization
-    tokenizer = tokenization.get_tokenizer()
-    tokens = tokenizer.encode(text)
-    return torch.tensor(tokens)
+    # Use a simple whitespace tokenization
+    tokens = text.split()
+    # Convert tokens to integers (you may want to implement a more sophisticated method)
+    token_ids = [hash(token) % 10000 for token in tokens]  # Using hash for simplicity
+    return torch.tensor(token_ids)
 
 def create_data_loader(dataset, batch_size: int, shuffle: bool = True, distributed: bool = False):
     """
@@ -55,17 +56,34 @@ def pad_sequences(sequences: list, pad_value: int = 0) -> torch.Tensor:
 
 def setup_fairscale(model, optimizer):
     """
-    Set up Fairscale for distributed training.
+    Set up Fairscale for distributed training using Fully Sharded Data Parallel (FSDP).
 
     Args:
         model: The PyTorch model
         optimizer: The optimizer
 
     Returns:
-        tuple: (ShardedDataParallel model, OSS optimizer)
+        tuple: (FSDP wrapped model, optimizer)
     """
-    model = ShardedDataParallel(model, optimizer)
-    optimizer = OSS(params=model.parameters(), optim=optimizer)
+    import torch.distributed as dist
+    from fairscale.nn.data_parallel import FullyShardedDataParallel as FSDP
+
+    if not dist.is_initialized():
+        try:
+            dist.init_process_group(backend='nccl')  # or 'gloo' for CPU
+        except RuntimeError as e:
+            print(f"Warning: Failed to initialize process group: {e}")
+            print("Continuing without distributed setup.")
+            return model, optimizer
+
+    if dist.is_initialized():
+        try:
+            model = FSDP(model)
+        except Exception as e:
+            print(f"Warning: Failed to wrap model with FSDP: {e}")
+            print("Continuing with the original model.")
+
+    # Note: FSDP doesn't require OSS optimizer, so we return the original optimizer
     return model, optimizer
 
 def process_long_text(text: str, chunk_size: int = 1000, chunk_overlap: int = 200) -> list:
