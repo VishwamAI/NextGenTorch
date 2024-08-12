@@ -48,3 +48,25 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ## License
 
 NextGenTorch is released under the [MIT License](LICENSE).
+
+## Generative AI Features
+
+NextGenTorch includes powerful generative AI capabilities that allow users to create human-like text based on input prompts. Here are some key features:
+
+1. **Text Generation**: Generate coherent and contextually relevant text using the `generate` method.
+2. **Temperature Control**: Adjust the creativity and randomness of the generated text using the `temperature` parameter.
+3. **Top-k Sampling**: Control the diversity of generated text with the `top_k` parameter.
+4. **Beam Search**: Improve the quality of generated text using beam search with the `num_beams` parameter.
+5. **Extended Context Length**: Handle longer contexts up to 8192 tokens, inspired by advanced models like Grok.
+
+### Usage Example
+
+```python
+from NextGenTorch import ChatInterface
+
+chat = ChatInterface(model_size="1b")
+response = chat.chat("Tell me about artificial intelligence.", max_length=100, temperature=0.7, top_k=50)
+print(response)
+```
+
+For more advanced usage and parameter tuning, please refer to the API documentation.
