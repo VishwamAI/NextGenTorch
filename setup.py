@@ -19,6 +19,9 @@ setup(
         "fairscale>=0.4.5",
         "langchain>=0.0.139",
         "pytest>=6.2.5",
+        "jax>=0.4.1",
+        "flax>=0.6.0",
+        "sentencepiece>=0.1.96",
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",
