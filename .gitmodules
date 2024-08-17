@@ -1,3 +1,3 @@
 [submodule "Neuroflax"]
-	path = NeuroFlex/src
+	path = NeuroFlex
 	url = https://github.com/VishwamAI/NeuroFlex.git
