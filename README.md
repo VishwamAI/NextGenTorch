@@ -1,8 +1,5 @@
 # NextGenTorch
 
-![Build Status](https://github.com/VishwamAI/NextGenTorch/workflows/Continuous%20Integration/badge.svg)
-[![PyPI version](https://badge.fury.io/py/NextGenTorch.svg)](https://pypi.org/project/NextGenTorch/)
-
 NextGenTorch is a powerful and flexible PyTorch-based library for next-generation language models.
 
 ## Installation
