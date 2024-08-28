@@ -1,0 +1,14 @@
+[
+  {
+    "question": "Solve the equation: $2x + 5 = 13$",
+    "answer": "To solve the equation $2x + 5 = 13$:\n1) Subtract 5 from both sides:\n   $2x + 5 - 5 = 13 - 5$\n   $2x = 8$\n2) Divide both sides by 2:\n   $\\frac{2x}{2} = \\frac{8}{2}$\n   $x = 4$\nTherefore, the solution is $x = 4$."
+  },
+  {
+    "question": "Calculate the area of a circle with radius 6 cm. Use $\\pi = 3.14$ for your calculation.",
+    "answer": "The formula for the area of a circle is $A = \\pi r^2$, where $r$ is the radius.\nGiven:\n- Radius $r = 6$ cm\n- $\\pi = 3.14$\nCalculation:\n$A = \\pi r^2$\n$A = 3.14 \\times 6^2$\n$A = 3.14 \\times 36$\n$A = 113.04$ cm²\nTherefore, the area of the circle is 113.04 cm²."
+  },
+  {
+    "question": "Find the derivative of $f(x) = 3x^2 - 2x + 1$",
+    "answer": "To find the derivative of $f(x) = 3x^2 - 2x + 1$, we use the power rule and the constant rule:\n1) For $3x^2$: The derivative is $3 \\cdot 2x = 6x$\n2) For $-2x$: The derivative is $-2$\n3) For the constant 1: The derivative is 0\nCombining these results:\n$f'(x) = 6x - 2 + 0 = 6x - 2$\nTherefore, the derivative of $f(x)$ is $f'(x) = 6x - 2$."
+  }
+]

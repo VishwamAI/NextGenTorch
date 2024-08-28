@@ -1,13 +1,36 @@
 # NextGenTorch
 
-NextGenTorch is a powerful and flexible PyTorch-based library for next-generation language models.
+NextGenTorch is a powerful and flexible PyTorch-based library for next-generation language models, designed to accelerate research and development in the field of artificial intelligence and natural language processing.
+
+## Features
+
+- State-of-the-art language model architectures
+- Efficient training and inference on large-scale datasets
+- Seamless integration with popular datasets and APIs
+- Advanced generative AI capabilities
+- Customizable model configurations
+- Distributed training support
 
 ## Installation
 
 Install NextGenTorch and its dependencies using pip:
 
 ```bash
-pip install NextGenTorch torch pytest fairscale langchain transformers
+pip install nextgentorch torch pytest fairscale langchain transformers
+```
+
+## Quick Start
+
+```python
+from nextgentorch import NextGenTorchModel, ChatInterface
+
+# Load a pre-trained model
+model = NextGenTorchModel.from_pretrained("nextgentorch/base")
+
+# Generate text
+chat = ChatInterface(model=model)
+response = chat.generate("Tell me about artificial intelligence.", max_length=100)
+print(response)
 ```
 
 ## Usage with Datasets
@@ -16,11 +39,9 @@ NextGenTorch supports seamless integration with datasets from various sources, i
 
 ### Hugging Face Datasets
 
-To use a dataset from Hugging Face:
-
 ```python
 from datasets import load_dataset
-from NextGenTorch import NextGenTorchModel
+from nextgentorch import NextGenTorchModel
 
 # Load a dataset
 dataset = load_dataset("wikipedia", "20220301.en")
@@ -28,15 +49,33 @@ dataset = load_dataset("wikipedia", "20220301.en")
 # Create a NextGenTorch model
 model = NextGenTorchModel.from_pretrained("nextgentorch/base")
 
-# Use the dataset with the model
-for batch in dataset["train"]:
-    outputs = model(batch["text"])
-    # Process outputs as needed
+# Fine-tune the model on the dataset
+model.train(dataset["train"])
+
+# Generate text using the fine-tuned model
+output = model.generate("Artificial intelligence is")
+print(output)
 ```
 
-### Google, Meta, and Microsoft Datasets
+For datasets from Google, Meta, and Microsoft, please refer to their respective APIs and documentation.
 
-For datasets from Google, Meta, and Microsoft, please refer to their respective APIs and documentation. Once you have loaded the dataset, you can use it with NextGenTorch in a similar manner to the Hugging Face example above.
+## Advanced Features
+
+1. **Temperature Control**: Adjust creativity with `temperature` parameter.
+2. **Top-k Sampling**: Control diversity using `top_k` parameter.
+3. **Beam Search**: Improve quality with `num_beams` parameter.
+4. **Extended Context**: Handle up to 8192 tokens of context.
+
+Example:
+```python
+response = chat.generate(
+    "Explain quantum computing",
+    max_length=200,
+    temperature=0.7,
+    top_k=50,
+    num_beams=5
+)
+```
 
 ## Contributing
 
@@ -44,26 +83,14 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## License
 
-NextGenTorch is released under the [MIT License](LICENSE).
+NextGenTorch is released under the [GNU General Public License v3.0](LICENSE).
 
-## Generative AI Features
+## Documentation
 
-NextGenTorch includes powerful generative AI capabilities that allow users to create human-like text based on input prompts. Here are some key features:
+For comprehensive documentation, tutorials, and API reference, visit our [official documentation](https://nextgentorch.readthedocs.io).
 
-1. **Text Generation**: Generate coherent and contextually relevant text using the `generate` method.
-2. **Temperature Control**: Adjust the creativity and randomness of the generated text using the `temperature` parameter.
-3. **Top-k Sampling**: Control the diversity of generated text with the `top_k` parameter.
-4. **Beam Search**: Improve the quality of generated text using beam search with the `num_beams` parameter.
-5. **Extended Context Length**: Handle longer contexts up to 8192 tokens, inspired by advanced models like Grok.
+## Support
 
-### Usage Example
+For questions, bug reports, or feature requests, please open an issue on our [GitHub repository](https://github.com/VishwamAI/NextGenTorch/issues).
 
-```python
-from NextGenTorch import ChatInterface
-
-chat = ChatInterface(model_size="1b")
-response = chat.chat("Tell me about artificial intelligence.", max_length=100, temperature=0.7, top_k=50)
-print(response)
-```
-
-For more advanced usage and parameter tuning, please refer to the API documentation.
+Join our [community forum](https://discuss.nextgentorch.ai) for discussions and support from the NextGenTorch community.

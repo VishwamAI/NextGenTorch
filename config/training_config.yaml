@@ -1,0 +1,69 @@
+# Training Configuration for NextGenTorch
+
+# Model selection
+model:
+  type: 'gpt'  # Options: 'gpt', 'bert', 'roberta', 't5', 'albert'
+  size: '2B'   # Size options depend on the selected model type
+
+# Model size options for each type
+model_sizes:
+  gpt:
+    - '2B'
+    - '7B'
+  bert:
+    - 'base'
+    - 'large'
+  roberta:
+    - 'base'
+    - 'large'
+  t5:
+    - 'small'
+    - 'base'
+  albert:
+    - 'base'
+    - 'large'
+
+# Training hyperparameters
+hyperparameters:
+  batch_size: 32
+  num_epochs: 10
+  learning_rate: 1e-5
+  warmup_steps: 1000
+  weight_decay: 0.01
+
+# Optimizer settings
+optimizer:
+  name: 'AdamW'
+  beta1: 0.9
+  beta2: 0.999
+  epsilon: 1e-8
+
+# Learning rate scheduler
+lr_scheduler:
+  name: 'LinearWarmupLRScheduler'
+  num_warmup_steps: 1000
+
+# Gradient clipping
+max_grad_norm: 1.0
+
+# Mixed precision training
+use_mixed_precision: true
+fp16_opt_level: 'O2'
+
+# Distributed training
+distributed_training:
+  backend: 'nccl'
+  world_size: 8  # number of GPUs
+
+# Checkpointing
+save_steps: 1000
+save_total_limit: 5
+
+# Evaluation
+eval_steps: 500
+
+# Logging
+logging_steps: 100
+
+# Seed for reproducibility
+seed: 42

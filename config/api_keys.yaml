@@ -1,0 +1,13 @@
+# API Keys Configuration
+
+# OpenAI API (if needed for comparison or other purposes)
+openai_api_key: "your_openai_api_key_here"
+
+# Hugging Face API (if needed for model or dataset access)
+huggingface_api_key: "your_huggingface_api_key_here"
+
+# Any other external services API keys can be added here
+# example_service_api_key: "your_example_service_api_key_here"
+
+# Note: Replace the placeholder values with actual API keys when deploying
+# Be cautious not to commit actual API keys to version control

@@ -1,0 +1,16 @@
+# Dataset Paths Configuration
+
+# GSM8k dataset
+gsm8k:
+  path: "/home/ubuntu/nextgentorch/data/raw/gsm8k/dataset.json"
+
+# MATH dataset
+math:
+  path: "/home/ubuntu/nextgentorch/data/raw/math/dataset.json"
+
+# Output paths for processed datasets
+output:
+  gsm8k: "/home/ubuntu/nextgentorch/data/gsm8k"
+  math: "/home/ubuntu/nextgentorch/data/math"
+
+# Note: Ensure these paths are correct and the datasets are available at the specified locations
